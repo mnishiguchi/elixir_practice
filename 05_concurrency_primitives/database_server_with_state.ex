@@ -1,17 +1,17 @@
 defmodule DatabaseServer do
-  # @@moduledoc """
-  # A server process is internally sequential. It runs a loop that processes one message at a time.
-  # """
+  @@moduledoc """
+  A server process is internally sequential. It runs a loop that processes one message at a time.
+  """
 
   #---
   # INTERFACE FUNCTIONS
   #---
 
-  # @doc """
-  # An interface function that is used by the client to start the server process.
-  # Creates a long-running process that runs forever.
-  # Returns a PID for the spawned process.
-  # """
+  @doc """
+  An interface function that is used by the client to start the server process.
+  Creates a long-running process that runs forever.
+  Returns a PID for the spawned process.
+  """
   def start do
     # Start the loop concurrently.
     spawn(fn ->
@@ -20,16 +20,16 @@ defmodule DatabaseServer do
     end)
   end
 
-  # @doc """
-  # Called when the client wants to execute a query.
-  # """
+  @doc """
+  Called when the client wants to execute a query.
+  """
   def run_async(server_pid, query_def) do
     send(server_pid, {:run_query, self, query_def})
   end
 
-  # @doc """
-  # Called when the client wants to get the query result.
-  # """
+  @doc """
+  Called when the client wants to get the query result.
+  """
   def get_result do
     receive do
       {:query_result, result} ->
@@ -43,9 +43,9 @@ defmodule DatabaseServer do
   # IMPLEMENTATION FUNCTIONS
   #---
 
-  # @doc """
-  # Implements an endless loop that handles incoming messages.
-  # """
+  @doc """
+  Implements an endless loop that handles incoming messages.
+  """
   defp loop(connection) do
     # NOTE: Process one message at a time.
     receive do
@@ -57,9 +57,9 @@ defmodule DatabaseServer do
     loop(connection)  # Keep the connection in the loop by passing it in as an argument.
   end
 
-  # @doc """
-  # Simulates the query execution.
-  # """
+  @doc """
+  Simulates the query execution.
+  """
   defp run_query(connection, query_def) do
     :timer.sleep(2000)
     "Connection: #{connection} - #{query_def} result"
