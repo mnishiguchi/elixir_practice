@@ -74,7 +74,7 @@ end
 server_pid = DatabaseServer.start
 
 ##
-# SEQUENTIAL (One query)
+# A. SEQUENTIAL (One query)
 #
 #   2 sec * 1 => 2 sec
 #
@@ -82,7 +82,7 @@ DatabaseServer.run_async(server_pid, "query 1")
 DatabaseServer.get_result
 
 ##
-# SEQUENTIAL (Multiple queries)
+# B. SEQUENTIAL (Multiple queries)
 #
 #   2 sec * 5 => 10 sec
 #
@@ -90,18 +90,19 @@ DatabaseServer.get_result
 1..5 |> Enum.map(fn(_) -> DatabaseServer.get_result end)
 
 ##
-# CONCURRENT USING A POOL
+# C. CONCURRENT USING A POOL
 #
 #   2 sec / each => 2 sec
 #
-# Create 100 database-server processes and store their PIDs in a list.
-pool = 1..100 |> Enum.map(fn(_) -> DatabaseServer.start end)
+# Create 100 database-server processes and store their PIDs in a map of index to pid.
+pool = for n <- 1..100,
+           into: %{},
+           do: { n, DatabaseServer.start }
 
 1..5 |> Enum.each(fn(query_def) ->
   # Get a random number in the range of 1..N so that we can distribute queries
   # over a pool of database-server processes.
-  at         = :random.uniform(100) - 1
-  server_pid = Enum.at(pool, at)
+  server_pid = pool[:random.uniform(100) - 1]
   DatabaseServer.run_async(server_pid, query_def)
 end)
 1..5 |> Enum.map(fn(_) -> DatabaseServer.get_result end)
